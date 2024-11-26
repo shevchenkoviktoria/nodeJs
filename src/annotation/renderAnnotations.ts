@@ -63,7 +63,7 @@ async function renderAnnotations(
           },
         ]);
       } else if (annotation.type === "rect" || annotation.type === "line") {
-        const geometry = annotation.geometry as Polygon | LineString; // Type casting to handle geometry
+        const geometry = annotation.geometry as Polygon | LineString;
         const [x, y] = geometry.coordinates[0] as [number, number];
 
         if (annotation.type === "rect") {
@@ -110,7 +110,7 @@ async function renderAnnotations(
     await croppedImage
       .composite([{ input: await overlay.toBuffer(), blend: "over" }])
       .jpeg({ quality: 80 }) // Save as JPEG with quality optimization
-      .toFile(outputPath); // The output path should have .jpeg extension
+      .toFile(outputPath);
 
     console.log("Annotated image saved at:", outputPath);
   } catch (error) {

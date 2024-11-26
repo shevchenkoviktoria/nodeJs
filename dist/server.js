@@ -5,8 +5,6 @@ const renderAnnotations = require("./annotation/renderAnnotations");
 const app = express();
 const port = 3000;
 
-// Route for rendering annotations on an image
-// Example of calling renderAnnotations in your route handler
 app.post("/render-annotations", async (req, res) => {
   try {
     const inputImage = "input.jpeg";
