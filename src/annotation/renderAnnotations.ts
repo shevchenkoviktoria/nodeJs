@@ -1,5 +1,4 @@
 import sharp from "sharp";
-
 import { Polygon, LineString } from "geojson";
 import { Annotation } from "./types/domain";
 
@@ -76,8 +75,6 @@ async function renderAnnotations(
                   annotation.attributes?.textWidth || 100
                 }" height="${annotation.attributes?.strokeWidth || 50}" fill="${
                   annotation.attributes?.color || "transparent"
-                }" stroke="${
-                  annotation.attributes?.strokeWidth || "blue"
                 }" stroke-width="${annotation.attributes?.strokeWidth || 2}" />
                 </svg>`
               ),

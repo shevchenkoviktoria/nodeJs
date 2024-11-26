@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "outDir": "./dist",
+    "rootDir": "./src",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "target": "es6",
-    "skipLibCheck": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "sourceMap": true,
-  }
+    "target": "ES6"
+  },
+  "include": ["src/**/*"]
 }
