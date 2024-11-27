@@ -14,7 +14,8 @@ module.exports = async function renderAnnotations(
   inputPath: string,
   outputPath: string,
   annotations: Annotation[],
-  bounds: Bounds
+  bounds: Bounds,
+  zoom: number = 1 
 ) {
   try {
     
@@ -29,6 +30,14 @@ module.exports = async function renderAnnotations(
 
     // Load the input image
     const sharpImage = sharp(inputPath);
+
+    // Apply zoom
+    if (zoom !== 1) {
+      sharpImage.resize({
+        width: Math.round(imageBounds.width * zoom),
+        height: Math.round(imageBounds.height * zoom),
+      });
+    }
 
     // Get image metadata to validate bounds
     const metadata = await sharpImage.metadata();
