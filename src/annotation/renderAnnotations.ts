@@ -2,17 +2,12 @@ import sharp from "sharp";
 import { Polygon, LineString } from "geojson";
 import { Annotation } from "./types/domain";
 
-type Observation = {
-  geometry: {
-    coordinates: [number, number];
-  };
-};
 
-async function renderAnnotations(
-  inputPath: string,
-  outputPath: string,
-  annotations: Annotation[],
-  observation: Observation
+module.exports = async function renderAnnotations(
+  inputPath: any,
+  outputPath: any,
+  annotations: any,
+  observation: { geometry: { coordinates: number[]; }; }
 ) {
   try {
     // Load the input image
@@ -119,4 +114,3 @@ async function renderAnnotations(
   }
 }
 
-export default renderAnnotations;
