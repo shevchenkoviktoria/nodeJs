@@ -1,6 +1,6 @@
 import sharp from "sharp";
-import { Polygon, LineString, Point } from "geojson";
-import { Annotation, IssueImage } from "./types/domain";
+import { Polygon, LineString } from "geojson";
+import { Annotation } from "./types/domain";
 
 
 type Bounds = {
