@@ -31,14 +31,6 @@ module.exports = async function renderAnnotations(
     // Load the input image
     const sharpImage = sharp(inputPath);
 
-    // Apply zoom
-    if (zoom !== 1) {
-      sharpImage.resize({
-        width: Math.round(imageBounds.width * zoom),
-        height: Math.round(imageBounds.height * zoom),
-      });
-    }
-
     // Get image metadata to validate bounds
     const metadata = await sharpImage.metadata();
     const imageWidth = metadata.width!;
@@ -76,9 +68,9 @@ module.exports = async function renderAnnotations(
         }
         case "rect": {
           const annotation = {
-            type: "rect", // or "line"
+            type: "rect", 
             geometry: {
-              type: "Polygon", // or "LineString"
+              type: "Polygon",
               coordinates: [
                 [10, 20],
                 [30, 40],
