@@ -1,33 +1,50 @@
 import sharp from "sharp";
-import { Polygon, LineString } from "geojson";
-import { Annotation } from "./types/domain";
+import { Polygon, LineString, Point } from "geojson";
+import { Annotation, IssueImage } from "./types/domain";
 
+
+type Bounds = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
 
 module.exports = async function renderAnnotations(
-  inputPath: any,
-  outputPath: any,
-  annotations: any,
-  observation: { geometry: { coordinates: number[]; }; }
+  inputPath: string,
+  outputPath: string,
+  annotations: Annotation[],
+  bounds: Bounds
 ) {
   try {
+    
+    const imageBounds = bounds;
+
+    if (!imageBounds) {
+      throw new Error("Image bounds are not defined.");
+    }
+    if (!bounds) {
+      throw new Error("Image bounds are not defined.");
+    }
+
     // Load the input image
-    const image = sharp(inputPath);
+    const sharpImage = sharp(inputPath);
 
-    // Get image metadata to validate coordinates
-    const metadata = await image.metadata(); // sharp.Metadata is inferred here
-    const width = metadata.width!;
-    const height = metadata.height!;
+    // Get image metadata to validate bounds
+    const metadata = await sharpImage.metadata();
+    const imageWidth = metadata.width!;
+    const imageHeight = metadata.height!;
 
-    // Ensure coordinates for cropping are within bounds
+    // Ensure bounds are within image dimensions
     const cropArea = {
-      left: Math.max(0, observation.geometry.coordinates[0] - 100),
-      top: Math.max(0, observation.geometry.coordinates[1] - 100),
-      width: Math.min(200, width - 100), // Ensure we don't crop outside the image bounds
-      height: Math.min(200, height - 100),
+      left: Math.max(0, bounds.x),
+      top: Math.max(0, bounds.y),
+      width: Math.min(bounds.width, imageWidth - bounds.x),
+      height: Math.min(bounds.height, imageHeight - bounds.y),
     };
 
-    // Crop the image according to observation coordinates
-    const croppedImage = image.extract(cropArea);
+    // Crop the image according to the bounds
+    const croppedImage = sharpImage.extract(cropArea);
 
     // Initialize a blank overlay for annotations
     const overlay = sharp({
@@ -39,72 +56,98 @@ module.exports = async function renderAnnotations(
       },
     });
 
-    // Render annotations on the overlay
-    for (const annotation of annotations) {
-      if (annotation.type === "text") {
-        overlay.composite([
-          {
-            input: Buffer.from(
-              `<svg>
-                <text x="${annotation.geometry.coordinates[0]}" y="${
-                annotation.geometry.coordinates[1]
-              }" font-size="${annotation.attributes?.fontSize || 20}" fill="${
-                annotation.attributes?.color || "red"
-              }">${annotation.attributes?.value || ""}</text>
-              </svg>`
-            ),
-            top: 0,
-            left: 0,
-          },
-        ]);
-      } else if (annotation.type === "rect" || annotation.type === "line") {
-        const geometry = annotation.geometry as Polygon | LineString;
-        const [x, y] = geometry.coordinates[0] as [number, number];
+    // Collect SVG elements for all annotations
+    const svgElements: string[] = annotations.map((annotation) => {
+      const { geometry, attributes, type } = annotation;
+      const [x, y] = geometry.coordinates as [number, number];
 
-        if (annotation.type === "rect") {
-          overlay.composite([
-            {
-              input: Buffer.from(
-                `<svg>
-                  <rect x="${x}" y="${y}" width="${
-                  annotation.attributes?.textWidth || 100
-                }" height="${annotation.attributes?.strokeWidth || 50}" fill="${
-                  annotation.attributes?.color || "transparent"
-                }" stroke-width="${annotation.attributes?.strokeWidth || 2}" />
-                </svg>`
-              ),
-              top: 0,
-              left: 0,
-            },
-          ]);
-        } else if (annotation.type === "line") {
-          const lineCoordinates = (annotation.geometry as LineString)
-            .coordinates;
-          overlay.composite([
-            {
-              input: Buffer.from(
-                `<svg>
-                  <line x1="${lineCoordinates[0][0]}" y1="${
-                  lineCoordinates[0][1]
-                }" x2="${lineCoordinates[1][0]}" y2="${
-                  lineCoordinates[1][1]
-                }" stroke="${
-                  annotation.attributes?.color || "blue"
-                }" stroke-width="${annotation.attributes?.strokeWidth || 2}" />
-                </svg>`
-              ),
-              top: 0,
-              left: 0,
-            },
-          ]);
+      switch (type) {
+        case "text": {
+          const fontSize = attributes?.fontSize || 20;
+          const color = attributes?.color || "red";
+          const text = attributes?.value || "";
+
+          return `
+            <text x="${x - cropArea.left}" y="${y - cropArea.top}" 
+                  font-size="${fontSize}" fill="${color}">
+              ${text}
+            </text>`;
         }
+        case "rect": {
+          const annotation = {
+            type: "rect", // or "line"
+            geometry: {
+              type: "Polygon", // or "LineString"
+              coordinates: [
+                [10, 20],
+                [30, 40],
+              ],
+            },
+          };
+          if (annotation.type === "rect" || annotation.type === "line") {
+            const geometry = annotation.geometry as Polygon | LineString;
+
+            if (
+              geometry.coordinates[0] &&
+              geometry.coordinates[0].length >= 2
+            ) {
+              const [x, y] = geometry.coordinates[0] as [number, number];
+              console.log("Coordinates:", x, y);
+            } else {
+              console.error(
+                "Invalid geometry format or insufficient coordinates."
+              );
+            }
+          }
+          const width = attributes?.textWidth || 100;
+          const height = attributes?.strokeWidth || 50;
+          const color = attributes?.color || "transparent";
+          const strokeWidth = attributes?.strokeWidth || 2;
+
+          const rectX = x;
+          const rectY = y;
+
+          return `
+            <rect x="${rectX - cropArea.left}" y="${rectY - cropArea.top}" 
+                  width="${width}" height="${height}" 
+                  fill="${color}" stroke="black" stroke-width="${strokeWidth}" />`;
+        }
+        case "line": {
+          const lineCoordinates = (geometry as LineString).coordinates;
+          const x1 = lineCoordinates[0][0] - cropArea.left;
+          const y1 = lineCoordinates[0][1] - cropArea.top;
+          const x2 = lineCoordinates[1][0] - cropArea.left;
+          const y2 = lineCoordinates[1][1] - cropArea.top;
+          const color = attributes?.color || "blue";
+          const strokeWidth = attributes?.strokeWidth || 2;
+
+          return `
+            <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
+                  stroke="${color}" stroke-width="${strokeWidth}" />`;
+        }
+        default:
+          return "";
       }
-    }
+    });
+
+    // Combine all SVG elements into a single SVG overlay
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           width="${cropArea.width}" height="${cropArea.height}">
+        ${svgElements.join("\n")}
+      </svg>`;
 
     // Merge annotations with the cropped image
     await croppedImage
-      .composite([{ input: await overlay.toBuffer(), blend: "over" }])
-      .jpeg({ quality: 80 }) // Save as JPEG with quality optimization
+      .composite([
+        {
+          input: Buffer.from(svgContent),
+          top: 0,
+          left: 0,
+          blend: "over",
+        },
+      ])
+      .jpeg({ quality: 80 })
       .toFile(outputPath);
 
     console.log("Annotated image saved at:", outputPath);
@@ -112,5 +155,4 @@ module.exports = async function renderAnnotations(
     console.error("Error rendering annotations:", error);
     throw new Error("Rendering annotations failed: " + error.message);
   }
-}
-
+};

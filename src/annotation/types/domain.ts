@@ -1,4 +1,4 @@
-import { Point, LineString, Polygon, MultiPolygon } from 'geojson'
+import { Point, LineString, Polygon, MultiPolygon, Geometry } from 'geojson'
 
 export type Dictionary<T = string | undefined> = { [key: string]: T }
 
@@ -29,6 +29,27 @@ export type IssueImage = {
   y: number
   bounds?: Bounds
   annotations?: Annotation[]
+  image?: Image
+}
+
+export type AnnotationType = {
+  type: 'rect' | 'arrow' | 'line' | 'text' | 'view'
+  geometry: Geometry
+  attributes?: Attributes
+}
+
+
+export const maxAnnotationArrowScale = 2
+export const maxAnnotationStrokeWidth = 10
+export const minAnnotationStrokeWidth = 1
+export const defaultAnnotationColor = '#E51310'
+export const defaultAnnotationTextColor = '#ffffff'
+export const defaultAnnotationTextBackground = 'rgba(19, 21, 21, 0.3)'
+export const defaultAnnotationTextWidth = 200
+
+export type IssueWithImage = {
+  id: string
+  image: Image
 }
 
 export type Issue = {
