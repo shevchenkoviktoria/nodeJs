@@ -1,35 +1,41 @@
 import sharp from "sharp";
-import { Polygon, LineString } from "geojson";
+import axios from "axios";
+import fs from "fs";
 import { Annotation } from "./types/domain";
 
-
 type Bounds = {
-  x: number
-  y: number
-  width: number
-  height: number
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+async function downloadImage(url: string, path: string) {
+  const response = await axios({
+    url,
+    responseType: "stream",
+  });
+  return new Promise((resolve, reject) => {
+    const writer = fs.createWriteStream(path);
+    response.data.pipe(writer);
+    writer.on("finish", resolve);
+    writer.on("error", reject);
+  });
 }
 
 module.exports = async function renderAnnotations(
-  inputPath: string,
+  imageUrl: string,
   outputPath: string,
   annotations: Annotation[],
-  bounds: Bounds,
-  zoom: number = 1 
+  bounds: Bounds
 ) {
   try {
-    
-    const imageBounds = bounds;
+    const tempImagePath = "temp_image.jpeg";
 
-    if (!imageBounds) {
-      throw new Error("Image bounds are not defined.");
-    }
-    if (!bounds) {
-      throw new Error("Image bounds are not defined.");
-    }
+    // Download the image
+    await downloadImage(imageUrl, tempImagePath);
 
-    // Load the input image
-    const sharpImage = sharp(inputPath);
+    const sharpImage = sharp(tempImagePath);
 
     // Get image metadata to validate bounds
     const metadata = await sharpImage.metadata();
@@ -48,6 +54,14 @@ module.exports = async function renderAnnotations(
     const croppedImage = sharpImage.extract(cropArea);
 
     // Initialize a blank overlay for annotations
+    const overlay = sharp({
+      create: {
+        width: cropArea.width,
+        height: cropArea.height,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    });
 
     // Collect SVG elements for all annotations
     const svgElements: string[] = annotations.map((annotation) => {
@@ -55,69 +69,16 @@ module.exports = async function renderAnnotations(
       const [x, y] = geometry.coordinates as [number, number];
 
       switch (type) {
-        case "text": {
-          const fontSize = attributes?.fontSize || 20;
-          const color = attributes?.color || "red";
-          const text = attributes?.value || "";
-
-          return `
-            <text x="${x - cropArea.left}" y="${y - cropArea.top}" 
-                  font-size="${fontSize}" fill="${color}">
-              ${text}
-            </text>`;
-        }
-        case "rect": {
-          const annotation = {
-            type: "rect", 
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [10, 20],
-                [30, 40],
-              ],
-            },
-          };
-          if (annotation.type === "rect" || annotation.type === "line") {
-            const geometry = annotation.geometry as Polygon | LineString;
-
-            if (
-              geometry.coordinates[0] &&
-              geometry.coordinates[0].length >= 2
-            ) {
-              const [x, y] = geometry.coordinates[0] as [number, number];
-              console.log("Coordinates:", x, y);
-            } else {
-              console.error(
-                "Invalid geometry format or insufficient coordinates."
-              );
-            }
-          }
-          const width = attributes?.textWidth || 100;
-          const height = attributes?.strokeWidth || 50;
-          const color = attributes?.color || "transparent";
-          const strokeWidth = attributes?.strokeWidth || 2;
-
-          const rectX = x;
-          const rectY = y;
-
-          return `
-            <rect x="${rectX - cropArea.left}" y="${rectY - cropArea.top}" 
-                  width="${width}" height="${height}" 
-                  fill="${color}" stroke="black" stroke-width="${strokeWidth}" />`;
-        }
-        case "line": {
-          const lineCoordinates = (geometry as LineString).coordinates;
-          const x1 = lineCoordinates[0][0] - cropArea.left;
-          const y1 = lineCoordinates[0][1] - cropArea.top;
-          const x2 = lineCoordinates[1][0] - cropArea.left;
-          const y2 = lineCoordinates[1][1] - cropArea.top;
-          const color = attributes?.color || "blue";
-          const strokeWidth = attributes?.strokeWidth || 2;
-
-          return `
-            <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" 
-                  stroke="${color}" stroke-width="${strokeWidth}" />`;
-        }
+        case "text":
+          return `<text x="${x}" y="${y}" font-size="${attributes?.fontSize}" fill="${attributes?.color}">${attributes?.text}</text>`;
+        case "rect":
+          return `<rect x="${x}" y="${y}" width="${attributes?.width}" height="${attributes?.height}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" fill="none" />`;
+        case "arrow":
+          // Add SVG representation for arrow
+          return `<line x1="${x}" y1="${y}" x2="${x + (attributes?.width || 0)}" y2="${y + (attributes?.height || 0)}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" marker-end="url(#arrowhead)" />`;
+        case "line":
+          // Add SVG representation for line
+          return `<line x1="${x}" y1="${y}" x2="${x + (attributes?.width || 0)}" y2="${y + (attributes?.height || 0)}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" />`;
         default:
           return "";
       }
@@ -140,12 +101,17 @@ module.exports = async function renderAnnotations(
           blend: "over",
         },
       ])
-      .jpeg({ quality: 80 })
+      .jpeg({ quality: 80 }) // Reduce quality to optimize performance
       .toFile(outputPath);
 
     console.log("Annotated image saved at:", outputPath);
+
+    // Clean up temporary image
+    fs.unlinkSync(tempImagePath);
   } catch (error) {
     console.error("Error rendering annotations:", error);
-    throw new Error("Rendering annotations failed: " + error.message);
+    throw new Error(
+      "Rendering annotations failed: " + (error as Error).message
+    );
   }
 };

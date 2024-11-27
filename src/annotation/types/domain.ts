@@ -8,11 +8,13 @@ export type Annotation = {
   type: 'rect' | 'arrow' | 'line' | 'text'
   geometry: Point | LineString | Polygon
   attributes?: {
-    strokeWidth?: string
-    fontSize?: string
-    textWidth?: string
-    color?: string
-    value?: string
+    fontSize?: string;
+    color?: string;
+    text?: string;
+    width?: number;
+    height?: number;
+    strokeColor?: string;
+    strokeWidth?: number;
   }
 }
 
