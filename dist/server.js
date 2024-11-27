@@ -18,7 +18,10 @@ const annotations = [
     x: 200,
     y: 300,
     options: {
-      // Add rectangle options here
+      width: 100,
+      height: 50,
+      strokeColor: "blue",
+      strokeWidth: 2,
     },
   },
 ];
