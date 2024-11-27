@@ -47,14 +47,6 @@ module.exports = async function renderAnnotations(
     const croppedImage = sharpImage.extract(cropArea);
 
     // Initialize a blank overlay for annotations
-    const overlay = sharp({
-      create: {
-        width: cropArea.width,
-        height: cropArea.height,
-        channels: 4,
-        background: { r: 0, g: 0, b: 0, alpha: 0 },
-      },
-    });
 
     // Collect SVG elements for all annotations
     const svgElements: string[] = annotations.map((annotation) => {
