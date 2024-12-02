@@ -1,0 +1,20 @@
+
+<html>
+<head>
+  <style>
+    body {
+      background-color: #121212;
+    }
+  </style>
+  <script>
+    const redirect_url = encodeURIComponent(document.location.href)
+    const url = `https://app.us-1.sharpershape.services/auth/login?redirect_url=${redirect_url}`
+    const meta = document.createElement('meta')
+    meta.httpEquiv = "refresh"
+    meta.content = `0; url='${url}`
+    document.head.appendChild(meta)
+  </script>
+</head>
+<body>
+</body>
+</html>

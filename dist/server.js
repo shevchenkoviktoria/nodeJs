@@ -1,4 +1,4 @@
-const renderAnnotations = require("./annotation/renderAnnotations");
+const renderAnnotations = require("./renderAnnotations");
 
 const inputImage = "input.jpeg";
 const outputImage = "output.jpeg";

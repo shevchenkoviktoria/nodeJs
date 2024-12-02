@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const renderAnnotations = require("./annotations/renderAnnotations");
+const renderAnnotations = require("./renderAnnotations");
 
 const app = express();
 const port = 3000;
