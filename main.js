@@ -96,7 +96,7 @@ downloadImage(imageUrl, path)
         );
 
         // Save the image with annotations
-        const outputPath = "./output_annotated_image.tif";
+        const outputPath = "`file://Users/vshevchenko/nodeJs/output_image.jpeg`"; 
         imageWithAnnotations.toFile(outputPath, (err, info) => {
           if (err) {
             console.error("Error saving annotated image:", err);
