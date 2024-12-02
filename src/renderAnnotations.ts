@@ -12,7 +12,7 @@ type Bounds = {
   height: number;
 };
 
-async function downloadImage(url: string, path: string) {
+export async function downloadImage(url: string, path: string) {
   console.log("Downloading image from URL:", url);
   const response = await axios({
     url,
