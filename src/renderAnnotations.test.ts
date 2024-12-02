@@ -1,11 +1,10 @@
 import { Annotation } from "./types/domain";
-
 import { renderAnnotations } from "./renderAnnotations";
 import fs from "fs";
 
 describe("renderAnnotations", () => {
-  const testImageUrl = "https://via.placeholder.com/600x400.jpg"; // Example placeholder image URL
-  const outputPath = "output/annotated_image.jpg"; // Path to save the annotated image
+  const testImageUrl = "`file:///Users/vshevchenko/nodeJs/input.jpeg`";
+  const outputPath = "file:///Users/vshevchenko/nodeJs/output_image.jpeg"; 
   const bounds = { x: 50, y: 50, width: 200, height: 150 }; // Crop bounds
   const annotations: Annotation[] = [
     {

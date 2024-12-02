@@ -1,25 +1,14 @@
-const fs = require('fs');
-const https = require('https');
+import axios from 'axios';
+import path from 'path';
 
-/**
- * Downloads an image from a URL and saves it to a local file.
- * @param {string} url - The URL of the image to download.
- * @param {string} path - The local file path to save the image.
- * @returns {Promise} - Resolves when the download is complete.
- */
-const downloadImage = (url, path) => {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(path);
-    https.get(url, (response) => {
-      response.pipe(file);
-      file.on('finish', () => {
-        file.close(resolve);
-      });
-    }).on('error', (err) => {
-      fs.unlinkSync(path); // Delete the file in case of error
-      reject(err);
-    });
-  });
-};
-
-module.exports = downloadImage;
+async function downloadImage(imagePath) {
+  const fileUrl = `file://${path.resolve(imagePath)}`; // Convert to file URL
+  try {
+    console.log("Downloading image from URL:", fileUrl);
+    const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+    return response.data;
+  } catch (error) {
+    console.error("Error downloading image:", error);
+    throw error;
+  }
+}
