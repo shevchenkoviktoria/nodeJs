@@ -1,9 +1,9 @@
 import sharp from "sharp";
 import axios from "axios";
-import fs from "fs";  
-import { Annotation } from "./types/domain";
-
-console.log("Starting renderAnnotations");
+import fs from "fs";
+import path from "path";
+import { addAnnotations } from "./addAnnotation";
+import { AnnotationType } from "./types/domain";
 
 type Bounds = {
   x: number;
@@ -12,34 +12,42 @@ type Bounds = {
   height: number;
 };
 
-export async function downloadImage(url: string, path: string) {
-  console.log("Downloading image from URL:", url);
-  const response = await axios({
-    url,
-    responseType: "stream",
-  });
-  return new Promise((resolve, reject) => {
-    const writer = fs.createWriteStream(path);
-    response.data.pipe(writer);
-    writer.on("finish", resolve);
-    writer.on("error", reject);
-  });
+async function downloadImage(url: string, outputPath: string) {
+  if (url.startsWith("http")) {
+    const response = await axios({
+      url,
+      responseType: "stream",
+    });
+    return new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(outputPath);
+      response.data.pipe(writer);
+      writer.on("finish", resolve);
+      writer.on("error", reject);
+    });
+  } else {
+    return new Promise<void>((resolve, reject) => {
+      const localPath = url.startsWith("file://") ? url.slice(7) : url;
+      fs.copyFile(localPath, outputPath, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
 }
 
-// Main renderAnnotations function
 export async function renderAnnotations(
   imageUrl: string,
   outputPath: string,
-  annotations: Annotation[],
+  annotations: AnnotationType[],
   bounds: Bounds
 ) {
-  console.log("Render annotations started");
-  const tempImagePath = "temp_image.jpeg";
-
   try {
-    console.log("Image URL being passed:", imageUrl);
+    console.log("Starting renderAnnotations");
+    const tempImagePath = "temp_image.tif";
+
+    console.log(`Image URL being passed: ${imageUrl}`);
+    console.log(`Downloading image from URL: ${imageUrl}`);
     await downloadImage(imageUrl, tempImagePath);
-    console.log("Image downloaded.");
 
     const sharpImage = sharp(tempImagePath);
 
@@ -50,72 +58,64 @@ export async function renderAnnotations(
 
     // Ensure bounds are within image dimensions
     const cropArea = {
-      left: Math.max(0, bounds.x),
-      top: Math.max(0, bounds.y),
-      width: Math.min(bounds.width, imageWidth - bounds.x),
-      height: Math.min(bounds.height, imageHeight - bounds.y),
+      left: Math.max(0, Math.round(bounds.x)),
+      top: Math.max(0, Math.round(bounds.y)),
+      width: Math.min(Math.round(bounds.width), imageWidth - Math.round(bounds.x)),
+      height: Math.min(Math.round(bounds.height), imageHeight - Math.round(bounds.y)),
     };
 
-    console.log("Cropping image...");
     // Crop the image according to the bounds
-    const croppedImage = sharpImage.extract(cropArea);
+    let croppedImage = sharpImage.extract(cropArea);
 
-    // Collect SVG elements for all annotations
-    const svgElements: string[] = annotations.map((annotation) => {
-      const { geometry, attributes, type } = annotation;
-      const [relativeX, relativeY] = geometry.coordinates as [number, number];
+    // Add annotations
+    croppedImage = addAnnotations(croppedImage, annotations);
 
-      switch (type) {
-        case "text":
-          return `<text x="${relativeX}" y="${relativeY}" font-size="${attributes?.fontSize}" fill="${attributes?.color}">${attributes?.text}</text>`;
-        case "rect":
-          return `<rect x="${relativeX}" y="${relativeY}" width="${attributes?.width}" height="${attributes?.height}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" fill="none" />`;
-        case "arrow":
-          return `<line x1="${relativeX}" y1="${relativeY}" x2="${relativeX + (attributes?.width || 0)}" y2="${relativeY + (attributes?.height || 0)}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" marker-end="url(#arrowhead)" />`;
-        case "line":
-          return `<line x1="${relativeX}" y1="${relativeY}" x2="${relativeX + (attributes?.width || 0)}" y2="${relativeY + (attributes?.height || 0)}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" />`;
-        default:
-          return "";
-      }
-    });
-
-    const svgContent = `
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           width="${cropArea.width}" height="${cropArea.height}">
-        <defs>
-          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-            <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-          </marker>
-        </defs>
-        ${svgElements.join("\n")}
-      </svg>`;
-
-    console.log("Merging annotations with image...");
-    // Merge annotations with the cropped image
-    await croppedImage
-      .composite([
-        {
-          input: Buffer.from(svgContent),
-          top: 0,
-          left: 0,
-          blend: "over",
-        },
-      ])
-      .jpeg({ quality: 80 })
-      .toFile(outputPath);
+    // Save the annotated image with reduced quality
+    await croppedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated image saved at:", outputPath);
-  } catch (error) {
-    console.error("Error rendering annotations:", error);
-    throw new Error(
-      "Rendering annotations failed: " + (error as Error).message
-    );
-  } finally {
+
     // Clean up temporary image
     if (fs.existsSync(tempImagePath)) {
       fs.unlinkSync(tempImagePath);
     }
+  } catch (error) {
+    console.error("Error rendering annotations:", error);
+    throw new Error("Rendering annotations failed: " + (error as Error).message);
   }
 }
 
-console.log("Script complete.");
+// Example usage
+const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
+const outputPath = "output_image.jpeg";
+const annotations: AnnotationType[] = [
+  {
+    type: "rect",
+    geometry: {
+      coordinates: [
+        [
+          [3362.177317397073, 802.7027164736265],
+          [4102.10143755534, 802.7027164736265],
+          [4102.10143755534, 1326.4984191570325],
+          [3362.177317397073, 1326.4984191570325],
+          [3362.177317397073, 802.7027164736265]
+        ]
+      ],
+      type: "Polygon"
+    },
+    attributes: {
+      strokeWidth: "3"
+    }
+  }
+];
+
+const bounds = {
+  x: 2888,
+  y: 558,
+  width: 1686,
+  height: 1012
+};
+
+renderAnnotations(imageUrl, outputPath, annotations, bounds)
+  .then(() => console.log("Annotations rendered successfully"))
+  .catch((error) => console.error("Failed to render annotations:", error));

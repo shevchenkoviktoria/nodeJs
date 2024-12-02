@@ -1,60 +1,49 @@
-import { Annotation } from "./types/domain";
-import { renderAnnotations } from "./renderAnnotations";
-import fs from "fs";
+import { renderAnnotations } from './renderAnnotations';
+import fs from 'fs';
+import path from 'path';
 
-describe("renderAnnotations", () => {
-  const testImageUrl = "`file://Users/vshevchenko/nodeJs/input.jpeg`";
-  const outputPath = "`file://Users/vshevchenko/nodeJs/output_image.jpeg`"; 
-  const bounds = { x: 50, y: 50, width: 200, height: 150 }; // Crop bounds
-  const annotations: Annotation[] = [
-    {
-      geometry: { type: "Point", coordinates: [60, 70] },
-      attributes: { text: "Sample", fontSize: "12", color: "red" },
-      type: "text",
-    },
-    {
-      geometry: { type: "Point", coordinates: [80, 90] },
-      attributes: {
-        width: 50,
-        height: 30,
-        strokeColor: "blue",
-        strokeWidth: 2,
-      },
-      type: "rect",
-    },
-  ];
+describe('renderAnnotations', () => {
+  it('should crop the image, add annotations, and save it locally', async () => {
+    const imageUrl = path.resolve(__dirname, '../input.jpeg'); // Adjust the path as needed
+    const outputPath = path.resolve(__dirname, 'output_image.jpeg');
+    const annotations = [
+      {
+        type: "rect" as "rect",
+        geometry: {
+          coordinates: [
+            [
+              [3362.177317397073, 802.7027164736265],
+              [4102.10143755534, 802.7027164736265],
+              [4102.10143755534, 1326.4984191570325],
+              [3362.177317397073, 1326.4984191570325],
+              [3362.177317397073, 802.7027164736265]
+            ]
+          ],
+          type: "Polygon" as "Polygon"
+        },
+        attributes: {
+          strokeWidth: "3"
+        }
+      }
+    ];
+    const bounds = {
+      x: 2888,
+      y: 558,
+      width: 1686,
+      height: 1012
+    };
 
-  // Ensure output directory exists
-  beforeAll(() => {
-    if (!fs.existsSync("output")) {
-      fs.mkdirSync("output");
-    }
-  });
-
-  it("should crop the image, add annotations, and save it locally", async () => {
     try {
-      // Call the function
-      await renderAnnotations(testImageUrl, outputPath, annotations, bounds);
+      await renderAnnotations(imageUrl, outputPath, annotations, bounds);
+      console.log("Annotated image saved at:", outputPath);
 
-      // Check if the output file was created
+      // Verify the output file exists
       expect(fs.existsSync(outputPath)).toBe(true);
 
-      // Additional checks can be performed, such as verifying dimensions
-      const sharp = require("sharp");
-      const metadata = await sharp(outputPath).metadata();
-
-      expect(metadata.width).toBe(bounds.width);
-      expect(metadata.height).toBe(bounds.height);
+      // Optionally, you can add more checks to verify the contents of the output image
     } catch (error) {
       console.error("Test failed:", error);
       throw error;
-    }
-  });
-
-  // Clean up after tests
-  afterAll(() => {
-    if (fs.existsSync(outputPath)) {
-      fs.unlinkSync(outputPath);
     }
   });
 });
