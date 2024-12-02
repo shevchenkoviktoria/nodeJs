@@ -22,7 +22,8 @@ describe('renderAnnotations', () => {
           type: "Polygon" as "Polygon"
         },
         attributes: {
-          strokeWidth: "3"
+          strokeWidth: "3",
+          strokeColor: "red"
         }
       }
     ];

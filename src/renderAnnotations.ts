@@ -84,37 +84,3 @@ export async function renderAnnotations(
     throw new Error("Rendering annotations failed: " + (error as Error).message);
   }
 }
-
-// Example usage
-const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
-const outputPath = "output_image.jpeg";
-const annotations: AnnotationType[] = [
-  {
-    type: "rect",
-    geometry: {
-      coordinates: [
-        [
-          [3362.177317397073, 802.7027164736265],
-          [4102.10143755534, 802.7027164736265],
-          [4102.10143755534, 1326.4984191570325],
-          [3362.177317397073, 1326.4984191570325],
-          [3362.177317397073, 802.7027164736265]
-        ]
-      ],
-      type: "Polygon"
-    },
-    attributes: {
-      strokeWidth: "3"
-    }
-  }
-];
-const bounds = {
-  x: 2888,
-  y: 558,
-  width: 1686,
-  height: 1012
-};
-
-renderAnnotations(imageUrl, outputPath, annotations, bounds)
-  .then(() => console.log("Annotations rendered successfully"))
-  .catch((error) => console.error("Failed to render annotations:", error));

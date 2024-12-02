@@ -10,6 +10,7 @@ export const addAnnotations = (
   annotations.forEach((annotation) => {
     const { type, geometry, attributes } = annotation;
 
+    // Handle different annotation types
     switch (type) {
       case "rect":
         annotationPipeline = annotationPipeline.composite([
