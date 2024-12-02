@@ -1,7 +1,7 @@
 import axios from 'axios';
 import path from 'path';
 
-async function downloadImage(imagePath) {
+export async function downloadImage(imagePath) {
   const fileUrl = `file://${path.resolve(imagePath)}`; // Convert to file URL
   try {
     console.log("Downloading image from URL:", fileUrl);

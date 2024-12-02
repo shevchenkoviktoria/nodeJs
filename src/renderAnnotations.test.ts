@@ -3,8 +3,8 @@ import { renderAnnotations } from "./renderAnnotations";
 import fs from "fs";
 
 describe("renderAnnotations", () => {
-  const testImageUrl = "`file:///Users/vshevchenko/nodeJs/input.jpeg`";
-  const outputPath = "file:///Users/vshevchenko/nodeJs/output_image.jpeg"; 
+  const testImageUrl = "`file://Users/vshevchenko/nodeJs/input.jpeg`";
+  const outputPath = "`file://Users/vshevchenko/nodeJs/output_image.jpeg`"; 
   const bounds = { x: 50, y: 50, width: 200, height: 150 }; // Crop bounds
   const annotations: Annotation[] = [
     {

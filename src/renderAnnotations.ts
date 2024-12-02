@@ -3,7 +3,6 @@ import axios from "axios";
 import fs from "fs";  
 import { Annotation } from "./types/domain";
 
-// Add logging to verify each step
 console.log("Starting renderAnnotations");
 
 type Bounds = {
@@ -38,8 +37,7 @@ export async function renderAnnotations(
   const tempImagePath = "temp_image.jpeg";
 
   try {
-    console.log("Downloading image...");
-    // Download the image
+    console.log("Image URL being passed:", imageUrl);
     await downloadImage(imageUrl, tempImagePath);
     console.log("Image downloaded.");
 
