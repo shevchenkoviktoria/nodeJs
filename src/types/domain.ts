@@ -1,5 +1,5 @@
 export type AnnotationType = {
-  type: 'rect' | 'arrow' | 'line' | 'text' | 'view';
+  type: 'rect' | 'arrow' | 'line' | 'text' | 'view'|'pin';
   geometry: Geometry;
   attributes?: Attributes;
 };

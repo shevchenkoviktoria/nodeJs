@@ -51,8 +51,11 @@ export async function renderAnnotations(
 
     const sharpImage = sharp(tempImagePath);
 
+    // Add annotations to the entire image
+    let annotatedImage = addAnnotations(sharpImage, annotations);
+
     // Get image metadata to validate bounds
-    const metadata = await sharpImage.metadata();
+    const metadata = await annotatedImage.metadata();
     const imageWidth = metadata.width!;
     const imageHeight = metadata.height!;
 
@@ -64,13 +67,10 @@ export async function renderAnnotations(
       height: Math.min(Math.round(bounds.height), imageHeight - Math.round(bounds.y)),
     };
 
-    // Crop the image according to the bounds
-    let croppedImage = sharpImage.extract(cropArea);
+    // Crop the annotated image according to the bounds
+    let croppedImage = annotatedImage.extract(cropArea);
 
-    // Add annotations
-    croppedImage = addAnnotations(croppedImage, annotations);
-
-    // Save the annotated image with reduced quality
+    // Save the cropped annotated image with reduced quality
     await croppedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated image saved at:", outputPath);
@@ -108,7 +108,6 @@ const annotations: AnnotationType[] = [
     }
   }
 ];
-
 const bounds = {
   x: 2888,
   y: 558,
