@@ -92,6 +92,7 @@ export const addAnnotations = (
         ]);
         break;
       default:
+        console.error(`Unsupported annotation type: ${type}`);
         break;
     }
   });

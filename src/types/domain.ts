@@ -6,6 +6,7 @@ export type Attributes = {
   color?: string;
   value?: string;
   strokeColor?: string;
+  strokeOpacity?: string;
 };
 
 export type AnnotationType = {
