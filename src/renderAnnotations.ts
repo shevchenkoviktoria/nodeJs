@@ -43,7 +43,7 @@ export async function renderAnnotations(
 ) {
   try {
     console.log("Starting renderAnnotations");
-    const tempImagePath = "temp_image.tif";
+    const tempImagePath = "annotatedImage.jpeg";
 
     console.log(`Image URL being passed: ${imageUrl}`);
     console.log(`Downloading image from URL: ${imageUrl}`);
