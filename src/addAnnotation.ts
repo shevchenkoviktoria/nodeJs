@@ -25,7 +25,7 @@ export const addAnnotations = (
                   return "";
                 })
                 .join(" ")}" fill="transparent" stroke="${
-                attributes?.strokeColor
+                attributes?.color
               }" stroke-width="${attributes?.strokeWidth}"/></svg>`
             ),
             blend: "over",
@@ -43,7 +43,7 @@ export const addAnnotations = (
                     <polygon points="0 0, 10 3.5, 0 7" />
                   </marker>
                 </defs>
-                <line x1="${ax1}" y1="${ay1}" x2="${ax2}" y2="${ay2}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" marker-end="url(#arrowhead)" />
+                <line x1="${ax1}" y1="${ay1}" x2="${ax2}" y2="${ay2}" stroke="${attributes?.color}" stroke-width="${attributes?.strokeWidth}" marker-end="url(#arrowhead)" />
               </svg>`
             ),
             blend: "over",
@@ -56,7 +56,7 @@ export const addAnnotations = (
           {
             input: Buffer.from(
               `<svg>
-                <line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="${attributes?.strokeColor}" stroke-width="${attributes?.strokeWidth}" />
+                <line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="${attributes?.color}" stroke-width="${attributes?.strokeWidth}" />
               </svg>`
             ),
             blend: "over",
@@ -69,7 +69,7 @@ export const addAnnotations = (
           {
             input: Buffer.from(
               `<svg>
-                <text x="${tx}" y="${ty}" font-size="${attributes?.fontSize}" fill="${attributes?.color}">${attributes?.text}</text>
+                <text x="${tx}" y="${ty}" font-size="${attributes?.fontSize}" fill="${attributes?.color}" width="${attributes?.textWidth}" height="${attributes?.textHeight}">${attributes?.value}</text>
               </svg>`
             ),
             blend: "over",
@@ -85,23 +85,6 @@ export const addAnnotations = (
             input: Buffer.from(
               `<svg>
                 <rect x="${vx1}" y="${vy1}" width="${vwidth}" height="${vheight}" fill="${attributes?.color}" />
-              </svg>`
-            ),
-            blend: "over",
-          },
-        ]);
-        break;
-      case "pin":
-        const [px, py] = geometry.coordinates[0][0];
-        annotationPipeline = annotationPipeline.composite([
-          {
-            input: Buffer.from(
-              `<svg>
-                <path stroke="${
-                  attributes?.strokeColor
-                }" stroke-opacity="${0.2}" stroke-width="${
-                attributes?.strokeWidth
-              }" d="M${px} ${py}h3a3 3 0 10-3-3v3z" />
               </svg>`
             ),
             blend: "over",
