@@ -1,3 +1,4 @@
+
 export type Attributes = {
   strokeWidth?: string;
   fontSize?: string;
@@ -17,5 +18,5 @@ export type AnnotationType = {
 
 export type Geometry = {
   coordinates: number[][][];
-  type: 'Polygon' | 'MultiPolygon';
+  type: 'Polygon'| 'LineString'| 'Point';
 };
