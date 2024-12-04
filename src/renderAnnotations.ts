@@ -52,10 +52,10 @@ export async function renderAnnotations(
     const sharpImage = sharp(tempImagePath);
 
     // Add annotations to the entire image
-    let annotatedImage = addAnnotations(sharpImage, annotations);
-
+    
     // Get image metadata to validate bounds
-    const metadata = await annotatedImage.metadata();
+    const metadata = await sharpImage.metadata();
+    let annotatedImage = addAnnotations(sharpImage, annotations, metadata);
     const imageWidth = metadata.width!;
     const imageHeight = metadata.height!;
 
