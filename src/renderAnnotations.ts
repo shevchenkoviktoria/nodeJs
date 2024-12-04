@@ -52,7 +52,7 @@ export async function renderAnnotations(
     const sharpImage = sharp(tempImagePath);
 
     // Add annotations to the entire image
-    
+
     // Get image metadata to validate bounds
     const metadata = await sharpImage.metadata();
     let annotatedImage = addAnnotations(sharpImage, annotations, metadata);
@@ -63,8 +63,14 @@ export async function renderAnnotations(
     const cropArea = {
       left: Math.max(0, Math.round(bounds.x)),
       top: Math.max(0, Math.round(bounds.y)),
-      width: Math.min(Math.round(bounds.width), imageWidth - Math.round(bounds.x)),
-      height: Math.min(Math.round(bounds.height), imageHeight - Math.round(bounds.y)),
+      width: Math.min(
+        Math.round(bounds.width),
+        imageWidth - Math.round(bounds.x)
+      ),
+      height: Math.min(
+        Math.round(bounds.height),
+        imageHeight - Math.round(bounds.y)
+      ),
     };
 
     // Crop the annotated image according to the bounds
@@ -81,7 +87,9 @@ export async function renderAnnotations(
     // }
   } catch (error) {
     console.error("Error rendering annotations:", error);
-    throw new Error("Rendering annotations failed: " + (error as Error).message);
+    throw new Error(
+      "Rendering annotations failed: " + (error as Error).message
+    );
   }
 }
 
@@ -100,23 +108,55 @@ const annotations: AnnotationType[] = [
           [4102.10143755534, 802.7027164736265],
           [4102.10143755534, 1326.4984191570325],
           [3362.177317397073, 1326.4984191570325],
-          [3362.177317397073, 802.7027164736265]
-        ]
+          [3362.177317397073, 802.7027164736265],
+        ],
       ],
-      type: "Polygon"
+      type: "Polygon",
     },
     attributes: {
       strokeWidth: "3",
-      strokeColor: "red"
-    }
-  }
+      color: "#FF0000",
+    },
+  },
+  {
+    type: "arrow",
+    geometry: {
+      coordinates: [
+        [
+          [2981.3841740048774, 1066.3287818779227],
+          [3286.295353126672, 736.6352390088799],
+        ],
+      ],
+      type: "LineString",
+    },
+    attributes: {
+      strokeWidth: "3",
+      color: "#FF0000",
+    },
+  },
+  {
+    type: "line",
+    geometry: {
+      coordinates: [
+        [
+          [3553.597775886592, 627.499707062865],
+          [4155.885885007791, 626.6184553274771],
+        ],
+      ],
+      type: "LineString",
+    },
+    attributes: {
+      strokeWidth: "3",
+      color: "#FF0000",
+    },
+  },
 ];
 
 const bounds = {
   x: 2888.740793552841,
   y: 558.5614174613104,
   width: 1686.7971678467313,
-  height: 1012.0783007080388
+  height: 1012.0783007080388,
 };
 
 renderAnnotations(imageUrl, outputPath, annotations, bounds)
