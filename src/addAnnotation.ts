@@ -32,8 +32,9 @@ export const addAnnotations = (
       }
       case "arrow": {
         const [[ax1, ay1], [ax2, ay2]] = geometry.coordinates[0];
+        //specify the svg widht and height
         const svg = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="${metadata.width}" height="${metadata.height}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="${metadata.width}" height="${metadata.height}"> 
             <defs>
               <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                 <polygon points="0 0, 10 3.5, 0 7" fill="${attributes?.color || defaultColor}" />

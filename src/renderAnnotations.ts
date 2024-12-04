@@ -43,13 +43,13 @@ export async function renderAnnotations(
 ) {
   try {
     console.log("Starting renderAnnotations");
-    const tempImagePath = "annotatedImage.jpeg";
+    
 
     console.log(`Image URL being passed: ${imageUrl}`);
     console.log(`Downloading image from URL: ${imageUrl}`);
-    await downloadImage(imageUrl, tempImagePath);
+    await downloadImage(imageUrl, outputPath);
 
-    const sharpImage = sharp(tempImagePath);
+    const sharpImage = sharp(outputPath);
 
     // Add annotations to the entire image
 
@@ -74,10 +74,10 @@ export async function renderAnnotations(
     };
 
     // Crop the annotated image according to the bounds
-    let croppedImage = annotatedImage.extract(cropArea);
+    // let croppedImage = annotatedImage.extract(cropArea);
 
     // Save the cropped annotated image with reduced quality
-    await croppedImage.jpeg({ quality: 80 }).toFile(outputPath);
+    await annotatedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated and cropped image saved at:", outputPath);
 
@@ -95,7 +95,7 @@ export async function renderAnnotations(
 
 // Example usage
 const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
-const outputPath = "output_image.jpeg";
+const outputPath = "output_image1.jpeg";
 
 // Extracted from JSON data
 const annotations: AnnotationType[] = [
