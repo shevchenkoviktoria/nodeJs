@@ -12,29 +12,6 @@ type Bounds = {
   height: number;
 };
 
-async function downloadImage(url: string, outputPath: string) {
-  if (url.startsWith("http")) {
-    const response = await axios({
-      url,
-      responseType: "stream",
-    });
-    return new Promise<void>((resolve, reject) => {
-      const writer = fs.createWriteStream(outputPath);
-      response.data.pipe(writer);
-      writer.on("finish", () => resolve());
-      writer.on("error", reject);
-    });
-  } else {
-    return new Promise<void>((resolve, reject) => {
-      const localPath = url.startsWith("file://") ? url.slice(7) : url;
-      fs.copyFile(localPath, outputPath, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
-  }
-}
-
 export async function renderAnnotations(
   imageUrl: string,
   outputPath: string,
@@ -44,47 +21,41 @@ export async function renderAnnotations(
   try {
     console.log("Starting renderAnnotations");
 
-    console.log(`Image URL being passed: ${imageUrl}`);
-    console.log(`Downloading image from URL: ${imageUrl}`);
-    // await downloadImage(imageUrl, outputPath);
-
     const sharpImage = sharp(imageUrl);
 
-    // Add annotations to the entire image
-
-    // Get image metadata to validate bounds
+    // Get image metadata
     const metadata = await sharpImage.metadata();
-    let annotatedImage = addAnnotations(sharpImage, annotations, metadata);
-    const imageWidth = metadata.width!;
-    const imageHeight = metadata.height!;
+    if (!metadata.width || !metadata.height) {
+      throw new Error("Invalid image dimensions: width or height is undefined");
+    }
+
+    const imageWidth = metadata.width;
+    const imageHeight = metadata.height;
 
     // Ensure bounds are within image dimensions
     const cropArea = {
-      left: Math.max(0, Math.round(bounds.x)),
-      top: Math.max(0, Math.round(bounds.y)),
-      width: Math.min(
-        Math.round(bounds.width),
-        imageWidth - Math.round(bounds.x)
-      ),
-      height: Math.min(
-        Math.round(bounds.height),
-        imageHeight - Math.round(bounds.y)
-      ),
+      left: Math.max(0, Math.min(bounds.x, imageWidth)),
+      top: Math.max(0, Math.min(bounds.y, imageHeight)),
+      width: Math.max(1, Math.min(bounds.width, imageWidth - bounds.x)),
+      height: Math.max(1, Math.min(bounds.height, imageHeight - bounds.y)),
     };
 
-    // Crop the annotated image according to the bounds
-    // let croppedImage = annotatedImage.extract(cropArea);
+    console.log("Image dimensions:", { imageWidth, imageHeight });
+    console.log("Crop area:", cropArea);
 
-    // Save the cropped annotated image with reduced quality
-    console.log({ outputPath });
-    await annotatedImage.jpeg({ quality: 80 }).toFile(outputPath);
+    // Add annotations to the entire image
+    console.log("Adding annotations...");
+    const annotatedImage = addAnnotations(sharpImage, annotations, metadata);
+
+    // Now crop the annotated image
+    console.log("Cropping the image...");
+    const croppedImage = annotatedImage.extract(cropArea);
+
+    // Save the cropped annotated image
+    console.log("Saving the final image...");
+    await croppedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated and cropped image saved at:", outputPath);
-
-    // Clean up temporary image (commented out to keep the image for inspection)
-    // if (fs.existsSync(tempImagePath)) {
-    //   fs.unlinkSync(tempImagePath);
-    // }
   } catch (error) {
     console.error("Error rendering annotations:", error);
     throw new Error(
@@ -92,20 +63,3 @@ export async function renderAnnotations(
     );
   }
 }
-
-// Example usage
-// const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
-// const outputPath = "output_image1.jpeg";
-
-// Extracted from JSON data
-
-// const bounds = {
-//   x: 2888.740793552841,
-//   y: 558.5614174613104,
-//   width: 1686.7971678467313,
-//   height: 1012.0783007080388,
-// };
-
-// renderAnnotations(imageUrl, outputPath, annotations, bounds)
-//   .then(() => console.log("Annotations rendered successfully"))
-//   .catch((error) => console.error("Failed to render annotations:", error));
