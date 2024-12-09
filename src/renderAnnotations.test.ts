@@ -62,6 +62,24 @@ describe("renderAnnotations", () => {
           color: "#FF0000",
         },
       },
+      {
+        type: "text",
+        geometry: {
+          coordinates: [
+            [
+              [ 2697.785349184176,
+                394.534148312278945],
+            ],
+          ],
+          type: "Point",
+        },
+        attributes: {
+          strokeWidth: "3",
+          color: "#FF0000",
+          fontSize: "50",
+          value: "test"
+        },
+      },
     ];
     const bounds = {
       x: 2888,
