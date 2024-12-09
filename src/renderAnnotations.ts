@@ -43,13 +43,12 @@ export async function renderAnnotations(
 ) {
   try {
     console.log("Starting renderAnnotations");
-    
 
     console.log(`Image URL being passed: ${imageUrl}`);
     console.log(`Downloading image from URL: ${imageUrl}`);
-    await downloadImage(imageUrl, outputPath);
+    // await downloadImage(imageUrl, outputPath);
 
-    const sharpImage = sharp(outputPath);
+    const sharpImage = sharp(imageUrl);
 
     // Add annotations to the entire image
 
@@ -77,6 +76,7 @@ export async function renderAnnotations(
     // let croppedImage = annotatedImage.extract(cropArea);
 
     // Save the cropped annotated image with reduced quality
+    console.log({ outputPath });
     await annotatedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated and cropped image saved at:", outputPath);
@@ -94,71 +94,18 @@ export async function renderAnnotations(
 }
 
 // Example usage
-const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
-const outputPath = "output_image1.jpeg";
+// const imageUrl = "file:///Users/vshevchenko/nodeJs/input.jpeg";
+// const outputPath = "output_image1.jpeg";
 
 // Extracted from JSON data
-const annotations: AnnotationType[] = [
-  {
-    type: "rect",
-    geometry: {
-      coordinates: [
-        [
-          [3362.177317397073, 802.7027164736265],
-          [4102.10143755534, 802.7027164736265],
-          [4102.10143755534, 1326.4984191570325],
-          [3362.177317397073, 1326.4984191570325],
-          [3362.177317397073, 802.7027164736265],
-        ],
-      ],
-      type: "Polygon",
-    },
-    attributes: {
-      strokeWidth: "3",
-      color: "#FF0000",
-    },
-  },
-  {
-    type: "arrow",
-    geometry: {
-      coordinates: [
-        [
-          [2981.3841740048774, 1066.3287818779227],
-          [3286.295353126672, 736.6352390088799],
-        ],
-      ],
-      type: "LineString",
-    },
-    attributes: {
-      strokeWidth: "3",
-      color: "#FF0000",
-    },
-  },
-  {
-    type: "line",
-    geometry: {
-      coordinates: [
-        [
-          [3553.597775886592, 627.499707062865],
-          [4155.885885007791, 626.6184553274771],
-        ],
-      ],
-      type: "LineString",
-    },
-    attributes: {
-      strokeWidth: "3",
-      color: "#FF0000",
-    },
-  },
-];
 
-const bounds = {
-  x: 2888.740793552841,
-  y: 558.5614174613104,
-  width: 1686.7971678467313,
-  height: 1012.0783007080388,
-};
+// const bounds = {
+//   x: 2888.740793552841,
+//   y: 558.5614174613104,
+//   width: 1686.7971678467313,
+//   height: 1012.0783007080388,
+// };
 
-renderAnnotations(imageUrl, outputPath, annotations, bounds)
-  .then(() => console.log("Annotations rendered successfully"))
-  .catch((error) => console.error("Failed to render annotations:", error));
+// renderAnnotations(imageUrl, outputPath, annotations, bounds)
+//   .then(() => console.log("Annotations rendered successfully"))
+//   .catch((error) => console.error("Failed to render annotations:", error));

@@ -5,8 +5,11 @@ import { AnnotationType } from "./types/domain";
 
 describe("renderAnnotations", () => {
   it("should crop the image, add annotations, and save it locally", async () => {
-    const imageUrl = path.resolve(__dirname, "../input.jpeg"); 
-    const outputPath = path.resolve(__dirname, "output_image3.jpeg");
+    const imageUrl = path.resolve(__dirname, "../input.jpeg");
+    const outputPath = path.resolve(
+      __dirname,
+      `output_image${Math.random()}.jpeg`
+    );
     const annotations: AnnotationType[] = [
       {
         type: "rect",
@@ -68,12 +71,7 @@ describe("renderAnnotations", () => {
     };
 
     try {
-      await renderAnnotations(
-        `file://${imageUrl}`,
-        outputPath,
-        annotations,
-        bounds
-      );
+      await renderAnnotations(imageUrl, outputPath, annotations, bounds);
       console.log("Annotated image saved at:", outputPath);
 
       // Verify the output file exists
