@@ -4,7 +4,7 @@ import path from "path";
 import { AnnotationType } from "./types/domain";
 
 describe("renderAnnotations", () => {
-  it("should crop the image, add annotations, and save it locally", async () => {
+  it("should add annotations and crop the image, and save it locally", async () => {
     const imageUrl = path.resolve(__dirname, "../input.jpeg");
     const outputPath = path.resolve(
       __dirname,
@@ -67,8 +67,7 @@ describe("renderAnnotations", () => {
         geometry: {
           coordinates: [
             [
-              [ 2697.785349184176,
-                394.534148312278945],
+              [ 2697.785349184176, 394.534148312278945],
             ],
           ],
           type: "Point",
