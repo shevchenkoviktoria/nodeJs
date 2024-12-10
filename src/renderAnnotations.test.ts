@@ -89,12 +89,9 @@ describe("renderAnnotations", () => {
 
     try {
       await renderAnnotations(imageUrl, outputPath, annotations, bounds);
-      console.log("Annotated image saved at:", outputPath);
-
       // Verify the output file exists
       expect(fs.existsSync(outputPath)).toBe(true);
 
-      // Optionally, you can add more checks to verify the contents of the output image
     } catch (error) {
       console.error("Test failed:", error);
       throw error;

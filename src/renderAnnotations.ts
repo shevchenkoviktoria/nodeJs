@@ -1,5 +1,4 @@
 import sharp from "sharp";
-import path from "path";
 import { addAnnotations } from "./addAnnotation";
 import { AnnotationType, Bounds } from "./types/domain";
 
@@ -10,11 +9,8 @@ export async function renderAnnotations(
   bounds: Bounds
 ) {
   try {
-    console.log("Starting renderAnnotations");
     // Load the image
     const sharpImage = sharp(imageUrl);
-
-    // Add annotations to the entire image
 
     // Get image metadata to validate bounds
     const metadata = await sharpImage.metadata();

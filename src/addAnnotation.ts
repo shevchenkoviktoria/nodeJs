@@ -102,7 +102,6 @@ export const addAnnotations = (
     })
     .join("\n");
 
-  // Combine all annotation elements into a single SVG
   const finalSVG = `
 <svg 
   xmlns="http://www.w3.org/2000/svg" 
@@ -113,6 +112,5 @@ export const addAnnotations = (
 </svg>
 `;
 
-  // Composite once with the constructed SVG containing all annotations
   return image.composite([{ input: Buffer.from(finalSVG) }]).toBuffer();
 };
