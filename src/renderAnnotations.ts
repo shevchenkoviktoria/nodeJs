@@ -1,14 +1,7 @@
 import sharp from "sharp";
 import path from "path";
 import { addAnnotations } from "./addAnnotation";
-import { AnnotationType } from "./types/domain";
-
-type Bounds = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+import { AnnotationType, Bounds } from "./types/domain";
 
 export async function renderAnnotations(
   imageUrl: string,
