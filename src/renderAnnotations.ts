@@ -38,11 +38,11 @@ export async function renderAnnotations(
     };
 
     // Crop the annotated image according to the bounds
-    // let croppedImage = annotatedImage.extract(cropArea);
+    let croppedImage = annotatedImage.extract(cropArea);
 
     // Save the cropped annotated image with reduced quality
     console.log({ outputPath });
-    await annotatedImage.jpeg({ quality: 80 }).toFile(outputPath);
+    await croppedImage.jpeg({ quality: 80 }).toFile(outputPath);
 
     console.log("Annotated and cropped image saved at:", outputPath);
   } catch (error) {
