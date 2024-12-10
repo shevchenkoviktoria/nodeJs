@@ -5,7 +5,7 @@ export const addAnnotations = (
   image: sharp.Sharp,
   annotations: AnnotationType[],
   metadata: sharp.Metadata
-): sharp.Sharp => {
+): Promise<Buffer> => {
   const defaultColor = "#f71212";
 
   const svgElements = annotations
@@ -112,8 +112,7 @@ export const addAnnotations = (
   ${svgElements}
 </svg>
 `;
-console.log("Final SVG Content:", finalSVG)
-  
+
   // Composite once with the constructed SVG containing all annotations
-  return image.composite([{ input: Buffer.from(finalSVG) }]);
+  return image.composite([{ input: Buffer.from(finalSVG) }]).toBuffer();
 };
