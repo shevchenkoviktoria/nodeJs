@@ -68,16 +68,17 @@ export const addAnnotations = (
         case "text": {
           const [tx, ty] = geometry.coordinates[0][0];
           return `
-        <text 
-          x="${tx}" 
-          y="${ty}" 
-          font-size="${attributes?.fontSize || 12}" 
-          fill="${attributes?.color || defaultColor}" 
-          text-anchor="start"
-        >
-          ${attributes?.value || ""}
-        </text>
-      `;
+            <text 
+              x="${tx}" 
+              y="${ty}" 
+              font-size="${attributes?.fontSize || 12}" 
+              fill="${attributes?.color || defaultColor}" 
+              text-anchor="start" 
+              dominant-baseline="middle"
+              font-family="Arial, sans-serif"
+            >
+              ${attributes?.value || ""}
+            </text>`;
         }
 
         case "view": {
