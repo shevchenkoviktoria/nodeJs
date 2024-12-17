@@ -4,12 +4,9 @@ import path from "path";
 import { AnnotationType } from "./types/domain";
 
 describe("renderAnnotations", () => {
-  it("should add annotations and crop the image, and save it locally", async () => {
+  it("should add a single annotation and crop the image, and save it locally", async () => {
     const imageUrl = path.resolve(__dirname, "../input.jpeg");
-    const outputPath = path.resolve(
-      __dirname,
-      `output_image${Math.random()}.jpeg`
-    );
+    const outputPath = path.resolve(__dirname, `output_image_single_annotation.jpeg`);
     const annotations: AnnotationType[] = [
       {
         type: "rect",
@@ -30,6 +27,68 @@ describe("renderAnnotations", () => {
           color: "#FF0000",
         },
       },
+    ];
+    const bounds = {
+      x: 2888,
+      y: 558,
+      width: 1686,
+      height: 1012,
+    };
+
+    try {
+      await renderAnnotations(imageUrl, outputPath, annotations, bounds);
+      // Verify the output file exists
+      expect(fs.existsSync(outputPath)).toBe(true);
+    } catch (error) {
+      console.error("Test failed:", error);
+      throw error;
+    }
+  });
+
+  it("should handle no annotations and still crop the image, and save it locally", async () => {
+    const imageUrl = path.resolve(__dirname, "../input.jpeg");
+    const outputPath = path.resolve(__dirname, `output_image_no_annotations.jpeg`);
+    const annotations: AnnotationType[] = []; // No annotations
+    const bounds = {
+      x: 2888,
+      y: 558,
+      width: 1686,
+      height: 1012,
+    };
+
+    try {
+      await renderAnnotations(imageUrl, outputPath, annotations, bounds);
+      // Verify the output file exists
+      expect(fs.existsSync(outputPath)).toBe(true);
+    } catch (error) {
+      console.error("Test failed:", error);
+      throw error;
+    }
+  });
+
+  it("should add annotations with different width, color of the box, arrow, etc., and crop the image, and save it locally", async () => {
+    const imageUrl = path.resolve(__dirname, "../input.jpeg");
+    const outputPath = path.resolve(__dirname, `output_image_different_annotations.jpeg`);
+    const annotations: AnnotationType[] = [
+      {
+        type: "rect",
+        geometry: {
+          coordinates: [
+            [
+              [3362.177317397073, 802.7027164736265],
+              [4102.10143755534, 802.7027164736265],
+              [4102.10143755534, 1326.4984191570325],
+              [3362.177317397073, 1326.4984191570325],
+              [3362.177317397073, 802.7027164736265],
+            ],
+          ],
+          type: "Polygon",
+        },
+        attributes: {
+          strokeWidth: "5",
+          color: "#00FF00", // Green box
+        },
+      },
       {
         type: "arrow",
         geometry: {
@@ -42,8 +101,8 @@ describe("renderAnnotations", () => {
           type: "LineString",
         },
         attributes: {
-          strokeWidth: "3",
-          color: "#FF0000",
+          strokeWidth: "4",
+          color: "#0000FF", // Blue arrow
         },
       },
       {
@@ -58,8 +117,8 @@ describe("renderAnnotations", () => {
           type: "LineString",
         },
         attributes: {
-          strokeWidth: "3",
-          color: "#FF0000",
+          strokeWidth: "2",
+          color: "#FF0000", // Red line
         },
       },
       {
@@ -73,10 +132,10 @@ describe("renderAnnotations", () => {
           type: "Point",
         },
         attributes: {
-          strokeWidth: "3",
-          color: "#FF0000",
-          fontSize: "50",
-          value: "test"
+          strokeWidth: "1",
+          color: "#FFFF00", // Yellow text
+          fontSize: "30",
+          value: "Test Annotation"
         },
       },
     ];
@@ -91,7 +150,6 @@ describe("renderAnnotations", () => {
       await renderAnnotations(imageUrl, outputPath, annotations, bounds);
       // Verify the output file exists
       expect(fs.existsSync(outputPath)).toBe(true);
-
     } catch (error) {
       console.error("Test failed:", error);
       throw error;
