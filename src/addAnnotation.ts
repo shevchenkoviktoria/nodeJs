@@ -104,11 +104,7 @@ export const addAnnotations = (
     .join("\n");
 
   const finalSVG = `
-<svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  width="${metadata.width}" 
-  height="${metadata.height}"
->
+<svg xmlns="http://www.w3.org/2000/svg" width="${metadata.width}" height="${metadata.height}" viewBox="0 0 ${metadata.width} ${metadata.height}">
   ${svgElements}
 </svg>
 `;
