@@ -48,7 +48,7 @@ describe("renderAnnotations", () => {
   it("should handle no annotations and still crop the image, and save it locally", async () => {
     const imageUrl = path.resolve(__dirname, "../input.jpeg");
     const outputPath = path.resolve(__dirname, `output_image_no_annotations.jpeg`);
-    const annotations: AnnotationType[] = []; // No annotations
+    const annotations: AnnotationType[] = [];
     const bounds = {
       x: 2888,
       y: 558,
@@ -86,7 +86,7 @@ describe("renderAnnotations", () => {
         },
         attributes: {
           strokeWidth: "5",
-          color: "#00FF00", // Green box
+          color: "#00FF00",
         },
       },
       {
@@ -102,7 +102,7 @@ describe("renderAnnotations", () => {
         },
         attributes: {
           strokeWidth: "4",
-          color: "#0000FF", // Blue arrow
+          color: "#0000FF",
         },
       },
       {
@@ -118,7 +118,7 @@ describe("renderAnnotations", () => {
         },
         attributes: {
           strokeWidth: "2",
-          color: "#FF0000", // Red line
+          color: "#FF0000",
         },
       },
       {
@@ -133,7 +133,7 @@ describe("renderAnnotations", () => {
         },
         attributes: {
           strokeWidth: "1",
-          color: "#FFFF00", // Yellow text
+          color: "#FFFF00", 
           fontSize: "30",
           value: "Test Annotation"
         },
