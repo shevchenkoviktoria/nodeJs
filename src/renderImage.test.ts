@@ -22,7 +22,7 @@ describe('renderImage', () => {
 
   it('should scale down an image with width greater than 2000 pixels', async () => {
     const image = {
-      fileUrl: fileUrl, // Use the provided URL
+      fileUrl: fileUrl,
       attributes: {},
     };
 
@@ -36,12 +36,12 @@ describe('renderImage', () => {
 
     // Inspect metadata of the output image
     const metadata = await sharp(outputPath).metadata();
-    expect(metadata.width).toBeLessThanOrEqual(2000); // Ensure the image width is <= 2000
+    expect(metadata.width).toBeLessThanOrEqual(2000);
   });
 
   it('should not resize an image with width less than or equal to 2000 pixels', async () => {
     const image = {
-      fileUrl: fileUrl, // Use the provided URL
+      fileUrl: fileUrl,
       attributes: {},
     };
 
@@ -55,6 +55,6 @@ describe('renderImage', () => {
 
     // Inspect metadata of the output image
     const metadata = await sharp(outputPath).metadata();
-    expect(metadata.width).toBeLessThanOrEqual(2000); // Ensure the image width is unchanged
+    expect(metadata.width).toBeLessThanOrEqual(2000);
   });
 });
