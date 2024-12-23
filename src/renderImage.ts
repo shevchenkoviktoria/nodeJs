@@ -1,10 +1,7 @@
-import sharp from 'sharp';
-import axios from 'axios';
+import sharp from "sharp";
+import axios from "axios";
 
-async function getImageUrl(image: {
-  fileUrl?: string;
-  attributes: { _cogUrl?: string };
-}): Promise<string> {
+async function getImageUrl(image: { fileUrl?: string; attributes: { _cogUrl?: string } }): Promise<string> {
   const imageUrl = image.fileUrl || image.attributes._cogUrl;
   if (!imageUrl) {
     throw new Error('No valid URL found for the image.');
@@ -13,7 +10,7 @@ async function getImageUrl(image: {
 }
 
 async function downloadImageBuffer(imageUrl: string): Promise<Buffer> {
-  const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+  const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
   return Buffer.from(response.data);
 }
 
@@ -33,27 +30,26 @@ export async function renderImage(
     const metadata = await sharperImage.metadata();
 
     if (!metadata.width) {
-      throw new Error('Unable to determine image width.');
+      throw new Error("Unable to determine image width.");
     }
 
     if (metadata.width > 2000) {
-      console.log('Image width exceeds 2000 pixels. Resizing...');
+      console.log("Image width exceeds 2000 pixels. Resizing...");
       await sharperImage
-        .resize({ width: 2000 }) 
+        .resize({ width: 2000 })
         .jpeg({ quality: 80 })
         .toFile(outputPath);
-      console.log('Scaled image saved at:', outputPath);
+      console.log("Scaled image saved at:", outputPath);
     } else {
-      console.log('Image width is within limits. No resizing needed.');
-      await sharperImage
-        .jpeg({ quality: 80 })
-        .toFile(outputPath);
-      console.log('Image saved at:', outputPath);
+      console.log("Image width is within limits. No resizing needed.");
+      await sharperImage.jpeg({ quality: 80 }).toFile(outputPath);
+      console.log("Image saved at:", outputPath);
     }
   } catch (error) {
-    console.error('Error rendering image:', error);
+    console.error("Error rendering image:", error);
     throw new Error(
-      'Rendering image failed: ' + (error instanceof Error ? error.message : String(error))
+      "Rendering image failed: " +
+        (error instanceof Error ? error.message : String(error))
     );
   }
 }
